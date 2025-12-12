@@ -80,7 +80,7 @@ cd org-management-service
 
 ```bash
 python -m venv venv
-venv\Scripts\activate      # Windows
+venv\\Scripts\\activate      # Windows
 ```
 
 ### 3️⃣ Install Dependencies
@@ -106,45 +106,6 @@ Open Swagger UI:
 ```
 http://127.0.0.1:8000/docs
 ```
-
-
-### 1️⃣ Clone the Repository
-
-```bash
-git clone <your-repo-url>
-cd org-management-service
-```
-
-### 2️⃣ Create Virtual Environment
-
-```bash
-python -m venv venv
-source venv/bin/activate   # Linux / Mac
-venv\Scripts\activate      # Windows
-```
-
-### 3️⃣ Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4️⃣ Start MongoDB
-
-Make sure MongoDB is running locally on:
-```
-mongodb://127.0.0.1:27017
-```
-
-### 5️⃣ Run the Server
-
-```bash
-uvicorn app.main:app --reload
-```
-
-Server will run at:
-```
-http://127.0.0.1:8000
 ```
 
 ---
