@@ -1,24 +1,21 @@
 # Organization Management Service – Backend
 
-A **multi-tenant backend application** built with **FastAPI**, **MongoDB**, and **JWT authentication**. This project allows creating, managing, and securing organizations where each organization has isolated data and an admin authenticated via JWT.
+A **multi-tenant backend application** built with **FastAPI**, **MongoDB**, and **JWT authentication**.  
+The system allows creating, managing, and securing organizations, where each organization is isolated and managed by its own admin.
 
 ---
 
 ## 🚀 Features
 
-- Modular and clean architecture (route-wise and responsibility-based separation)
-- Clear separation of concerns (models, routes, security, database)
-- Logic grouped by domain (Organization, Auth)
-- Easily extensible to class-based services if needed (service layer can be added)
-
-
-- Organization creation with admin credentials
-- Secure password hashing (SHA-256 + bcrypt)
-- Admin login with JWT authentication
-- Org-level authorization (admins can act only on their org)
-- Full CRUD operations on organizations
+- Modular and clean architecture with clear separation of concerns
+- Domain-based structure (Organization, Authentication, Security)
+- Easily extensible to a **class-based service layer**
+- Secure password handling using SHA-256 + bcrypt
+- Admin authentication using JWT (Bearer tokens)
+- Organization-level authorization
+- Full CRUD operations for organizations
 - Multi-tenant MongoDB design (one collection per organization)
-- Interactive API documentation using Swagger
+- Interactive API documentation using Swagger (OpenAPI)
 
 ---
 
@@ -28,7 +25,7 @@ A **multi-tenant backend application** built with **FastAPI**, **MongoDB**, and 
 - **Database:** MongoDB
 - **Authentication:** JWT (Bearer Token)
 - **Password Hashing:** SHA-256 + bcrypt
-- **API Docs:** Swagger (OpenAPI)
+- **API Documentation:** Swagger (OpenAPI)
 
 ---
 
@@ -37,33 +34,19 @@ A **multi-tenant backend application** built with **FastAPI**, **MongoDB**, and 
 ```
 app/
 ├── core/
-│   └── security.py          # Password hashing & JWT logic
+│   └── security.py          # JWT & password security utilities
 ├── models/
-│   ├── organization.py     # Pydantic request models
-│   └── admin.py             # Admin login model
+│   ├── organization.py     # Pydantic request/response models
+│   └── admin.py            # Admin login model
 ├── routes/
-│   ├── org.py               # Organization CRUD APIs
-│   └── auth.py              # Admin login API
-├── database.py              # MongoDB connection setup
-└── main.py                  # FastAPI app entry point
+│   ├── org.py              # Organization CRUD APIs
+│   └── auth.py             # Authentication APIs
+├── database.py             # MongoDB connection setup
+└── main.py                 # FastAPI application entry point
 ```
 
-Each module has a **single responsibility**, making the design clean and maintainable.
-
-
-```
-app/
-├── core/
-│   └── security.py          # Password hashing & JWT logic
-├── models/
-│   ├── organization.py     # Pydantic models
-│   └── admin.py             # Admin login model
-├── routes/
-│   ├── org.py               # Organization CRUD APIs
-│   └── auth.py              # Admin login API
-├── database.py              # MongoDB connection
-└── main.py                  # FastAPI app entry point
-```
+Each module follows the **single responsibility principle**, keeping the codebase clean, readable, and maintainable.  
+The structure also allows easy migration to a **class-based service design** if required.
 
 ---
 
@@ -76,11 +59,11 @@ git clone <your-repo-url>
 cd org-management-service
 ```
 
-### 2️⃣ Create & Activate Virtual Environment
+### 2️⃣ Create & Activate Virtual Environment (Windows)
 
 ```bash
 python -m venv venv
-venv\\Scripts\\activate      # Windows
+venv\Scripts\activate
 ```
 
 ### 3️⃣ Install Dependencies
@@ -91,7 +74,8 @@ pip install -r requirements.txt
 
 ### 4️⃣ Start MongoDB
 
-Ensure MongoDB is running locally:
+Ensure MongoDB is running locally on:
+
 ```
 mongodb://127.0.0.1:27017
 ```
@@ -103,36 +87,23 @@ uvicorn app.main:app --reload
 ```
 
 Open Swagger UI:
-```
-http://127.0.0.1:8000/docs
-```
-```
 
----
-
-## 📘 API Documentation
-
-Swagger UI:
 ```
 http://127.0.0.1:8000/docs
 ```
 
 ---
 
-## 🔑 Authentication Flow
+## 🔐 Authentication Flow
 
-1. **Create Organization** (`POST /org/create`)
-   - Stores admin credentials securely
-2. **Admin Login** (`POST /admin/login`)
-   - Returns JWT token
-3. **Authorize**
-   - Use `Authorization: Bearer <token>`
-4. **Access Protected APIs**
-   - Update/Delete organization
+1. **Create Organization** – `POST /org/create`
+2. **Admin Login** – `POST /admin/login` → JWT token
+3. **Authorize Requests** using `Authorization: Bearer <token>`
+4. **Access Protected APIs** (update / delete organization)
 
 ---
 
-## 🔐 API Endpoints Summary
+## 🔗 API Endpoints Summary
 
 | Method | Endpoint | Description | Auth Required |
 |------|---------|------------|---------------|
@@ -144,9 +115,7 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## 🧠 Architecture Overview
-
-### High-Level Diagram
+## 🧠 High-Level Architecture Diagram
 
 ```
 Client (Swagger / Curl / Frontend)
@@ -165,71 +134,41 @@ MongoDB
   └── org_<organization_name> (tenant collections)
 ```
 
-### Flow Summary
-- Client sends request to FastAPI
-- FastAPI validates input using Pydantic models
-- JWT middleware validates admin identity
-- MongoDB performs CRUD operations
+---
 
+## 🧩 Design Choices (Brief Explanation)
 
-- **FastAPI** handles REST APIs and validation
-- **JWT** ensures stateless authentication
-- **MongoDB** stores:
-  - Master collection (`organizations`)
-  - Tenant collections (`org_<name>`)
-- Each request validates admin + organization from JWT
+- **FastAPI** was chosen for its performance, built-in validation, and automatic API documentation.
+- **JWT Authentication** provides stateless and scalable security.
+- **Multi-collection tenancy** ensures strong isolation between organizations.
+- The architecture is intentionally kept modular to support a **class-based service layer** in the future.
 
 ---
 
-## ⚖️ Design Choices & Trade-offs
+## ⚖️ Trade-offs
 
-### Why FastAPI?
-- High performance
-- Built-in validation
-- Automatic Swagger documentation
+- A large number of organizations can result in many MongoDB collections
+- Renaming an organization requires collection migration
+- Cross-organization queries are intentionally restricted
 
-### Why JWT Authentication?
-- Stateless and scalable
-- No server-side session storage
-- Industry standard
-
-### Why Multi-Collection (One per Org)?
-- Strong data isolation
-- Easy org deletion
-- Clear tenant boundaries
-
-### Trade-offs
-- Large number of collections if org count is very high
-- Cross-organization queries are harder
-- Organization rename requires collection migration
-
-These trade-offs are acceptable for **small to medium-scale SaaS systems** and for demonstrating clean backend design.
-
-
-### Pros
-- Strong data isolation
-- Simple authorization logic
-- Secure authentication
-
-### Cons
-- Many collections for large number of orgs
-- Renaming org requires data migration
+These trade-offs are acceptable for **small to medium-scale systems** and clearly demonstrate backend design decisions.
 
 ---
 
 ## 🔮 Future Improvements
 
-- Environment-based configuration
+- Environment-based configuration using `.env`
 - Role-based access control (RBAC)
 - Refresh tokens
-- Rate limiting
-- Centralized logging
+- Rate limiting and request logging
+- Dedicated service layer (fully class-based design)
 
 ---
 
 ## ✅ Conclusion
 
-This project demonstrates a **secure, scalable, and clean backend architecture** using modern Python tooling. It is suitable for learning, assignments, and as a foundation for real-world SaaS backends.
+This project demonstrates a **clean, modular, and secure backend architecture** using modern Python tooling.  
+It is suitable for **academic submissions, interviews, and real-world SaaS backends**.
 
 ---
 
